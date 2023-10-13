@@ -26,9 +26,9 @@ namespace TuyaCommander
         internal static void Start()
         {
             // Beolvassuk a felhasználó által megadott régiót
-            int region = TuyaRegionSetup.Run();
+            int region = UserInput.GetRegion();
             // Beolvassuk a felhasználó által megadott azonosítót és titkos kódot
-            var (accessId, apiSecret) = TuyaLogin.Run();
+            var (accessId, apiSecret) = UserInput.GetLoginDetails();
 
             // Létrehozzuk a TuyaApi példányt a felhasználó által megadott adatokkal
             tuyaApi = new TuyaApi((TuyaApi.Region)region, accessId, apiSecret);
@@ -52,26 +52,25 @@ namespace TuyaCommander
 
         internal static async Task<TuyaDevice> DeviceInfo(string device)
         {
-            //TuyaDevice tuyaDevice;// = new TuyaDevice();
             TuyaDeviceApiInfo tuyaDeviceApiInfo = await tuyaApi.GetDeviceInfoAsync(device);
-            /*if (tuyaDeviceApiInfo != null)
-            {
-                tuyaDevice.Ip = tuyaDeviceApiInfo.Ip;
-                tuyaDevice.Localkey = tuyaDeviceApiInfo.LocalKey;
-                tuyaDevice.DeviceId = tuyaDeviceApiInfo.Id;
-                return tuyaDevice;
-            }
-            else
-            {
-                Console.WriteLine($"Error while getting device info");
-                return new TuyaDevice();
-            }*/
             return new TuyaDevice(tuyaDeviceApiInfo.Ip, tuyaDeviceApiInfo.LocalKey, tuyaDeviceApiInfo.Id);
         }
     }
-    internal static class TuyaRegionSetup //Bing AI generated
+    internal static class UserInput //Bing AI generated
     {
-        public static int Run()
+        public static string GetDeviceName()
+        {
+            Console.WriteLine("Kérlek, add meg az eszköz nevét:");
+            return Console.ReadLine();
+        }
+
+        public static string GetDeviceType()
+        {
+            Console.WriteLine("Kérlek, add meg az eszköz típusát:");
+            return Console.ReadLine();
+        }
+
+        public static int GetRegion()
         {
             List<string> options = new List<string> { "China", "Western America", "Eastern America", "Central Europe", "Western Europe", "India" };
 
@@ -104,10 +103,8 @@ namespace TuyaCommander
 
             return selection;
         }
-    }
-    internal static class TuyaLogin //Bing AI generated
-    {
-        public static (string, string) Run()
+
+        public static (string, string) GetLoginDetails()
         {
             string enterIdText = "Adja meg az azonosítóját: ";
             string enterSecretCodeText = "Adja meg a titkos kódját: ";
@@ -146,6 +143,7 @@ namespace TuyaCommander
             return (id, secretCode);
         }
     }
+
     internal class TuyaDeviceStorage // Bing AI generated
     {
         private static Dictionary<string, TuyaDevice> devices = new Dictionary<string, TuyaDevice>();
