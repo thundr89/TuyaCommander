@@ -44,6 +44,7 @@ namespace TuyaCommander
         internal static async Task<TuyaDevice> DeviceInfo(string device)
         {
             TuyaDeviceApiInfo tuyaDeviceApiInfo = await tuyaApi.GetDeviceInfoAsync(device);
+            Console.WriteLine($"Device name: {tuyaDeviceApiInfo.Name}");
             return new TuyaDevice(tuyaDeviceApiInfo.Ip, tuyaDeviceApiInfo.LocalKey, tuyaDeviceApiInfo.Id);
         }
     }
