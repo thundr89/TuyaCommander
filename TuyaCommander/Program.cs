@@ -9,15 +9,6 @@ namespace TuyaCommander
             DetectTuya.Start();
         }
     }
-    internal class TuyaLANDevice
-    {
-        private string ip;
-        private string localkey;
-        private string id;
-        internal string Ip { get => ip; set => ip = value; }
-        internal string Localkey { get => localkey; set => localkey = value; }
-        internal string DeviceId { get => id; set => id = value; }
-    }
     internal class DetectTuya
     {
         private static readonly TuyaScanner tuyascanner = new TuyaScanner();
