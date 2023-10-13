@@ -46,15 +46,15 @@ namespace TuyaCommander
         internal static async void TuyaDeviceFound(object sender, TuyaDeviceScanInfo e)
         {
             Console.WriteLine($"New device found! IP: {e.IP}, ID: {e.GwId}, version: {e.Version}");
-            TuyaLANDevice tuyaDevice = await DeviceInfo(e.GwId);
+            TuyaDevice tuyaDevice = await DeviceInfo(e.GwId);
             TuyaDeviceStorage.AddDevice(tuyaDevice);
         }
 
-        internal static async Task<TuyaLANDevice> DeviceInfo(string device)
+        internal static async Task<TuyaDevice> DeviceInfo(string device)
         {
-            TuyaLANDevice tuyaDevice = new TuyaLANDevice();
+            //TuyaDevice tuyaDevice;// = new TuyaDevice();
             TuyaDeviceApiInfo tuyaDeviceApiInfo = await tuyaApi.GetDeviceInfoAsync(device);
-            if (tuyaDeviceApiInfo != null)
+            /*if (tuyaDeviceApiInfo != null)
             {
                 tuyaDevice.Ip = tuyaDeviceApiInfo.Ip;
                 tuyaDevice.Localkey = tuyaDeviceApiInfo.LocalKey;
@@ -64,8 +64,9 @@ namespace TuyaCommander
             else
             {
                 Console.WriteLine($"Error while getting device info");
-                return new TuyaLANDevice();
-            }
+                return new TuyaDevice();
+            }*/
+            return new TuyaDevice(tuyaDeviceApiInfo.Ip, tuyaDeviceApiInfo.LocalKey, tuyaDeviceApiInfo.Id);
         }
     }
     internal static class TuyaRegionSetup //Bing AI generated
@@ -147,18 +148,18 @@ namespace TuyaCommander
     }
     internal class TuyaDeviceStorage // Bing AI generated
     {
-        private static Dictionary<string, TuyaLANDevice> devices = new Dictionary<string, TuyaLANDevice>();
+        private static Dictionary<string, TuyaDevice> devices = new Dictionary<string, TuyaDevice>();
 
-        public static void AddDevice(TuyaLANDevice device)
+        public static void AddDevice(TuyaDevice device)
         {
-            string key = device.Ip + device.DeviceId;
+            string key = device.IP + device.DeviceId;
             if (!devices.ContainsKey(key))
             {
                 devices.Add(key, device);
             }
         }
 
-        public static TuyaLANDevice GetDevice(string ip, string deviceId)
+        public static TuyaDevice GetDevice(string ip, string deviceId)
         {
             string key = ip + deviceId;
             if (devices.ContainsKey(key))
