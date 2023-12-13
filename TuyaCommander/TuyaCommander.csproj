@@ -11,4 +11,10 @@
     <PackageReference Include="TuyaNet" Version="1.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="TuyaColorHelper">
+      <HintPath>bin\Debug\net7.0\TuyaColorHelper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

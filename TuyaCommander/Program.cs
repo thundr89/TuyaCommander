@@ -12,17 +12,17 @@ namespace TuyaCommander
     internal class DetectTuya
     {
         private static readonly TuyaScanner tuyascanner = new TuyaScanner();
-        private static TuyaApi tuyaapi;
+        private static TuyaApi tuyaApi;
 
         internal static void Start()
         {
             // Beolvassuk a felhasználó által megadott régiót
-            int region = TuyaRegionSetup.Run();
+            int region = UserInput.GetRegion();
             // Beolvassuk a felhasználó által megadott azonosítót és titkos kódot
-            var (accessId, apiSecret) = TuyaLogin.Run();
+            var (accessId, apiSecret) = UserInput.GetLoginDetails();
 
             // Létrehozzuk a TuyaApi példányt a felhasználó által megadott adatokkal
-            tuyaapi = new TuyaApi((TuyaApi.Region)region, accessId, apiSecret);
+            tuyaApi = new TuyaApi((TuyaApi.Region)region, accessId, apiSecret);
 
             tuyascanner.OnNewDeviceInfoReceived += TuyaDeviceFound;
             tuyascanner.Start();
@@ -37,15 +37,36 @@ namespace TuyaCommander
         internal static async void TuyaDeviceFound(object sender, TuyaDeviceScanInfo e)
         {
             Console.WriteLine($"New device found! IP: {e.IP}, ID: {e.GwId}, version: {e.Version}");
+            TuyaDevice tuyaDevice = await DeviceInfo(e.GwId);
+            TuyaDeviceStorage.AddDevice(tuyaDevice);
+        }
+
+        internal static async Task<TuyaDevice> DeviceInfo(string device)
+        {
+            TuyaDeviceApiInfo tuyaDeviceApiInfo = await tuyaApi.GetDeviceInfoAsync(device);
+            Console.WriteLine($"Device name: {tuyaDeviceApiInfo.Name}");
+            return new TuyaDevice(tuyaDeviceApiInfo.Ip, tuyaDeviceApiInfo.LocalKey, tuyaDeviceApiInfo.Id);
         }
     }
-    internal static class TuyaRegionSetup //Bing AI generated
+    internal static class UserInput //Bing AI generated
     {
-        public static int Run()
+        public static string GetDeviceName()
+        {
+            Console.WriteLine("Kérlek, add meg az eszköz nevét:");
+            return Console.ReadLine();
+        }
+
+        public static string GetDeviceType()
+        {
+            Console.WriteLine("Kérlek, add meg az eszköz típusát:");
+            return Console.ReadLine();
+        }
+
+        public static int GetRegion()
         {
             List<string> options = new List<string> { "China", "Western America", "Eastern America", "Central Europe", "Western Europe", "India" };
 
-            string chooseOptionText = "Válasszon az alábbi lehetőségek közül:";
+            string chooseOptionText = "Válassza ki az ön régióját alábbi lehetőségek közül:";
             string enterChoiceText = "Adja meg a választás számát: ";
             string invalidChoiceText = "Érvénytelen választás. Próbálja újra.";
             string chosenOptionText = "A választott lehetőség: ";
@@ -74,10 +95,8 @@ namespace TuyaCommander
 
             return selection;
         }
-    }
-    internal static class TuyaLogin //Bing AI generated
-    {
-        public static (string, string) Run()
+
+        public static (string, string) GetLoginDetails()
         {
             string enterIdText = "Adja meg az azonosítóját: ";
             string enterSecretCodeText = "Adja meg a titkos kódját: ";
@@ -114,6 +133,33 @@ namespace TuyaCommander
             }
 
             return (id, secretCode);
+        }
+    }
+
+    internal class TuyaDeviceStorage // Bing AI generated
+    {
+        private static Dictionary<string, TuyaDevice> devices = new Dictionary<string, TuyaDevice>();
+
+        public static void AddDevice(TuyaDevice device)
+        {
+            string key = device.IP + device.DeviceId;
+            if (!devices.ContainsKey(key))
+            {
+                devices.Add(key, device);
+            }
+        }
+
+        public static TuyaDevice GetDevice(string ip, string deviceId)
+        {
+            string key = ip + deviceId;
+            if (devices.ContainsKey(key))
+            {
+                return devices[key];
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
