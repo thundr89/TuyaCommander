@@ -4,9 +4,46 @@ namespace TuyaCommander
 {
     internal class Program
     {
+        static string settings = "XML/partner.xml";
+        static bool login = true;
+        static int founddevices = 0;
+        static void IncreaseFoundDevices()
+        { founddevices++; }
         static void Main(string[] args)
         {
-            DetectTuya.Start();
+            //DetectTuya.Start();
+            string accessId;
+            string apiSecret;
+            string region;
+            string devices;
+            if (File.Exists(settings))
+            {
+                login = false; //megvannak az adatok, automatikusan belépünk
+            }
+            else
+            { 
+                login = true;
+            }
+            var config = new TuyaCommanderConfig();
+            if (login)
+            {
+                (accessId, apiSecret) = UserInput.GetLoginDetails();
+                region = UserInput.GetRegion().ToString();
+                devices = UserInput.GetDevices().ToString();
+                config.Id = accessId;
+                config.Secret = apiSecret;
+                config.Region = region;
+                config.Devices = devices;
+                config.SaveConfig(settings);
+            }
+            else
+            {
+                config.LoadConfig(settings);
+                accessId = config.Id;
+                apiSecret = config.Secret;
+                region = config.Region;
+                devices = config.Devices;
+            }
         }
     }
     internal class DetectTuya
@@ -98,7 +135,7 @@ namespace TuyaCommander
 
         public static int GetDevices()
         {
-            string enterDevicesText = "Adja meg mennyi Tuya eszközzel rendelkezik numerikus formában: ";
+            string enterDevicesText = "Adja meg hány darab Tuya eszközzel rendelkezik numerikus formában: ";
             string input;
             int devices;
             while (true)
