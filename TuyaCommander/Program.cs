@@ -96,6 +96,28 @@ namespace TuyaCommander
             return selection;
         }
 
+        public static int GetDevices()
+        {
+            string enterDevicesText = "Adja meg mennyi Tuya eszközzel rendelkezik numerikus formában: ";
+            string input;
+            int devices;
+            while (true)
+            {
+                input = Console.ReadLine();
+                bool isInteger = int.TryParse(input, out int intValue);
+                if (isInteger)
+                {
+                    devices = intValue;
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(enterDevicesText);
+                }
+            }
+            return devices;
+        }
+
         public static (string, string) GetLoginDetails()
         {
             string enterIdText = "Adja meg az azonosítóját: ";
